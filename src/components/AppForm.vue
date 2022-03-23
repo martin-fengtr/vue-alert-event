@@ -2,7 +2,7 @@ async async
 <template>
   <div class="p-6 flex flex-col flex-1 items-center">
     <form
-      class="mt-24 p-8 max-w-[768px] w-1/3 border border-slate-300 rounded-lg text-sm flex flex-col items-stretch gap-6"
+      class="relative mt-24 p-8 max-w-[768px] w-1/3 border border-slate-300 rounded-lg overflow-hidden text-sm flex flex-col items-stretch gap-6"
     >
       <p class="text-xl text-center font-semibold">Email Alert</p>
 
@@ -65,17 +65,27 @@ async async
           Save
         </button>
       </div>
+
+      <div
+        v-if="isTesting || isSaving"
+        class="absolute inset-0 bg-black/30 text-white flex justify-center items-center"
+      >
+        <span v-if="isTesting">Testing...</span>
+        <span v-if="isSaving">Saving...</span>
+      </div>
     </form>
   </div>
 </template>
 
 <script lang="ts" setup>
-import ErrorMessage from '@/components/ErrorMessage.vue';
-import { useField, useForm } from 'vee-validate';
 import { computed } from 'vue';
+import { useField, useForm } from 'vee-validate';
 import * as yup from 'yup';
+import ErrorMessage from '@/components/ErrorMessage.vue';
+import { useEvent } from '@/hooks/UseEvent.hook';
 
 const { resetForm } = useForm();
+const { isTesting, isSaving, test, save } = useEvent(resetForm);
 
 const {
   value: message,
@@ -127,6 +137,9 @@ const {
       .email('Invalid email address')
       .test('unique', 'Already existing email address', (value) => {
         return !value || !recipients.value.includes(value);
+      })
+      .test('limit', 'Maximum recipients count reached', (value) => {
+        return !value || recipients.value.length < 10;
       }),
   ),
 );
@@ -148,14 +161,11 @@ const onTest = async () => {
   const { valid: validRecipients } = await validateRecipients();
 
   if (validMessage && validFrequency && validRecipients) {
-    console.log(
-      JSON.stringify({
-        message: message.value,
-        frequency: frequency.value,
-        recipients: recipients.value,
-      }),
-    );
-    resetForm();
+    test({
+      message: message.value,
+      frequency: frequency.value,
+      recipients: recipients.value,
+    });
   }
 };
 
@@ -165,14 +175,11 @@ const onSave = async () => {
   const { valid: validRecipients } = await validateRecipients();
 
   if (validMessage && validFrequency && validRecipients) {
-    console.log(
-      JSON.stringify({
-        message: message.value,
-        frequency: frequency.value,
-        recipients: recipients.value,
-      }),
-    );
-    resetForm();
+    save({
+      message: message.value,
+      frequency: frequency.value,
+      recipients: recipients.value,
+    });
   }
 };
 </script>
