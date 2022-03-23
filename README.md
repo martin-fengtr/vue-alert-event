@@ -7,9 +7,9 @@ Some key points:
 - ESLint + Prettier setup
 
 
-## Getting Started
+# Getting Started
 
-# Run the development server:
+## Run the development server:
 
 ```bash
 npm run dev
@@ -17,7 +17,7 @@ npm run dev
 yarn dev
 ```
 
-# Build project:
+## Build project:
 
 ```bash
 npm run build
@@ -25,7 +25,7 @@ npm run build
 yarn build
 ```
 
-# Run unit test:
+## Run unit test:
 
 ```bash
 npm run test:unit
